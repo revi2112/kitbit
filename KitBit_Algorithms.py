@@ -1340,7 +1340,7 @@ pairs = [
     ("A000040_primes", "A000217_triangular"),
 ]
 
-# make 15 pairwise interleavings
+# make 15 pairwise 
 for a_name, b_name in pairs:
     a = base_families[a_name]
     b = base_families[b_name]
@@ -1351,7 +1351,7 @@ for a_name, b_name in pairs:
         "type": "pair_interleave"
     })
 
-# 15 triple interleavings
+# 15 triple 
 triples = [
     ("A000027_naturals", "A005843_evens", "A000217_triangular"),
     ("A000027_naturals", "A000290_squares", "A000040_primes"),
@@ -1595,23 +1595,15 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
         final_pred = predicted_next
         detail = None
 
-        # If baseline fails, try 2-way decomposition
         # If baseline fails, try best decomposition strategy
         if not baseline_ok:
             best_split = try_best_composite_split(seq[:-1], expected, kl, mz=mz, depth=depth)
 
-        if best_split:
-            num_parts = len(best_split["parts"])
-            min_required = (num_parts + 1) // 2   # 2-way -> 1, 3-way -> 2
-
-            accept = best_split and best_split["all_solved"]
-
-            if accept:
+            if best_split and best_split["all_solved"]:
                 mode_used = f"decomposition-{best_split['mode']}"
                 final_ok = True
                 final_pred = expected
                 detail = best_split
-
         if final_ok:
             solved += 1
 
