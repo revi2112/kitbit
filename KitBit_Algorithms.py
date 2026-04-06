@@ -1217,10 +1217,10 @@ def execute_kitbit_gb_True(seqs, kl, mz, path):
     print(f"[GB-TRUE] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
     print(f"Results saved to: {path}\n")
     
-execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
-execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
-execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
-execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
+# execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
+# execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
+# execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
+# execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
 
 def execute_kitbit_oeis(sols, kl, sols_cad):
     solved, not_solved, q = [], [], 0
@@ -1381,21 +1381,50 @@ for a_name, b_name, c_name in triples:
         "type": "triple_interleave"
     })
 
-
 composite_dataset = []
-for seq in direct_composite_set:
-    composite_dataset.append({
-        "sequence": seq,
-        "source": "direct_oeis_backed",
-        "type": "direct"
-    })
-
+composite_dataset.extend(direct_composite_set)
 composite_dataset.extend(constructed_composite_set)
 
-print(f"Total composite sequences: {len(composite_dataset)}")
+print(f"Before dedup: {len(composite_dataset)}")
 
-composite_test_set = [item["sequence"] for item in composite_dataset]
+seen = set()
+unique_composite_dataset = []
 
+for item in composite_dataset:
+    if isinstance(item, dict):
+        seq_tuple = tuple(item["sequence"])
+    else:
+        seq_tuple = tuple(item)
+
+    if seq_tuple not in seen:
+        seen.add(seq_tuple)
+        unique_composite_dataset.append(item)
+
+composite_dataset = unique_composite_dataset
+
+print(f"After dedup: {len(composite_dataset)}")
+
+extra_composites = [
+    [1, 2, 2, 6, 3, 24, 4, 120, 5],     # naturals + factorial
+    [2, 1, 3, 2, 5, 6, 7, 24, 11],      # primes + factorial
+    [1, 2, 4, 3, 9, 5, 16, 7, 25],      # squares + primes
+    [1, 1, 3, 2, 6, 6, 10, 24, 15],     # triangular + factorial
+    [2, 1, 3, 1, 5, 2, 7, 3, 11],       # primes + fib
+    [1, 1, 4, 2, 9, 3, 16, 5, 25],      # squares + fib
+    [2, 1, 4, 2, 6, 6, 8, 24, 10],      # evens + factorial
+]
+
+for seq in extra_composites:
+    seq_tuple = tuple(seq)
+    if seq_tuple not in seen:
+        seen.add(seq_tuple)
+        composite_dataset.append(seq)
+
+composite_test_set = [
+    item["sequence"] if isinstance(item, dict) else item
+    for item in composite_dataset
+]
+print(composite_test_set)
 def run_composite_baseline(seqs, kl, mz=1, depth=3):
     solved = 0
     results = []
@@ -1626,21 +1655,21 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
 
     return results
 
-sols, sols_cad = [], []
-CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
-CoList2 = read_path('data/OEIS_KITAS.txt')
-print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
-for j in range(len(CoList1)):
-    seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
-    pos_sol = seq1[:]
-    if len(pos_sol) < 4 or len(seq1[:-1])<2:
-        continue
-    sols.append(pos_sol)
-    sols_cad.append(CoList1[j][:-1])
+# sols, sols_cad = [], []
+# CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
+# CoList2 = read_path('data/OEIS_KITAS.txt')
+# print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
+# for j in range(len(CoList1)):
+#     seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
+#     pos_sol = seq1[:]
+#     if len(pos_sol) < 4 or len(seq1[:-1])<2:
+#         continue
+#     sols.append(pos_sol)
+#     sols_cad.append(CoList1[j][:-1])
 
-sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
-print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
-write_path('results/OEIS_results.txt', sol_def)
+# sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
+# print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
+# write_path('results/OEIS_results.txt', sol_def)
 
 
 print("---------------------------- BASELINE --------------")
