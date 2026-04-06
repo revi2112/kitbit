@@ -1217,10 +1217,10 @@ def execute_kitbit_gb_True(seqs, kl, mz, path):
     print(f"[GB-TRUE] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
     print(f"Results saved to: {path}\n")
     
-# execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
-# execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
-# execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
-# execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
+execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
+execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
+execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
+execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
 
 def execute_kitbit_oeis(sols, kl, sols_cad):
     solved, not_solved, q = [], [], 0
@@ -1255,7 +1255,7 @@ def execute_series_oeis(sols, kl, depth, N, mz):
         x = h.handler()
         print(x) 
 
-#------Daata------
+#------Daata for composite series------
 def interleave2(a, b, take_last_from= "a"):
     """
     Interleave three sequences:
@@ -1425,6 +1425,7 @@ composite_test_set = [
     for item in composite_dataset
 ]
 print(composite_test_set)
+
 def run_composite_baseline(seqs, kl, mz=1, depth=3):
     solved = 0
     results = []
@@ -1473,9 +1474,7 @@ def run_composite_baseline(seqs, kl, mz=1, depth=3):
 
     return results
 
-
 def solve_subsequence_with_kitbit(subseq, kl, mz=1, depth=3):
-    
     h = KitBit(
         subseq[:-1], kl, 500000, depth,
         search_algorithm='BFS',
@@ -1483,161 +1482,151 @@ def solve_subsequence_with_kitbit(subseq, kl, mz=1, depth=3):
         epsilon=exp(-18),
         all_solutions=False
     )
-    
+
     x = h.handler()
-    
     pred_seq = x[0][0] if x and x[0] else False
-    predicted_next = pred_seq[len(subseq)-1] if pred_seq and len(pred_seq) >= len(subseq) else None
-    ok = predicted_next == subseq[-1]
-    
+    predicted_next = pred_seq[len(subseq) - 1] if pred_seq and len(pred_seq) >= len(subseq) else None
+
     return {
-        "solved": ok, 
-        "predicted_next" : predicted_next,
+        "solved": predicted_next == subseq[-1],
+        "predicted_next": predicted_next,
         "pred_seq": pred_seq,
         "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
         "time": x[1] if x and len(x) > 1 else None
     }
-    
-def split_odd_even(seq): 
+
+
+def split_odd_even(seq):
     return [seq[::2], seq[1::2]]
 
-def split_even_odd(seq):
-    return [seq[1::2], seq[::2]]
 
 def split_stride3(seq):
     return [seq[0::3], seq[1::3], seq[2::3]]
 
-def split_stride3_reverse(seq):
-    return [seq[2::3], seq[1::3], seq[0::3]]
-
-def split_blocks_2(seq):
-    # alternating blocks of size 2
-    # [a,b,c,d,e,f,g,h,i] -> [a,b,e,f,i], [c,d,g,h]
-    s1, s2 = [], []
-    toggle = True
-    for i in range(0, len(seq), 2):
-        block = seq[i:i+2]
-        if toggle:
-            s1.extend(block)
-        else:
-            s2.extend(block)
-        toggle = not toggle
-    return [s1, s2]
-
-def split_blocks_2_reverse(seq):
-    s1, s2 = split_blocks_2(seq)
-    return [s2, s1]
-
-def split_blocks_3(seq):
-    # alternating blocks of size 3
-    s1, s2 = [], []
-    toggle = True
-    for i in range(0, len(seq), 3):
-        block = seq[i:i+3]
-        if toggle:
-            s1.extend(block)
-        else:
-            s2.extend(block)
-        toggle = not toggle
-    return [s1, s2]
 
 def evaluate_split(parts, expected, kl, mz=1, depth=3):
+    """
+    Evaluate whether each decomposed subsequence can correctly predict
+    its own next term when extended with the expected answer.
+    
+    it must feld ture for all subsequences to be marked as "solved"
+    """
+    if any(len(part) < 3 for part in parts):
+        return None
+
     sub_results = []
-    solved_count = 0
-
-    lengths = [len(part) for part in parts]
-    target_idx = lengths.index(max(lengths))
-
+    
+    #solving all subsequneces
     for part in parts:
-        if len(part) < 3:
-            return None
-
-        r = solve_subsequence_with_kitbit(part + [expected], kl, mz=mz, depth=depth)
-
-        sub_results.append(r)
-
-        if r["solved"]:
-            solved_count += 1
-
-    target_solved = sub_results[target_idx]["solved"]
+        result = solve_subsequence_with_kitbit(part + [expected], kl, mz=mz, depth=depth)
+        sub_results.append(result)
 
     return {
         "parts": parts,
         "sub_results": sub_results,
-        "solved_count": solved_count,
-        "all_solved": solved_count == len(parts),
-        "target_idx": target_idx,
-        "target_solved": target_solved
+        "solved_count": sum(r["solved"] for r in sub_results),
+        "all_solved": all(r["solved"] for r in sub_results),
     }
-    
+
+
+def reconstruct_next_from_split(parts, sub_results, mode):
+    """
+    Reconstruct which subsequence should generate the next element
+    in the original interleaved sequence.
+    """
+    preds = [r["predicted_next"] for r in sub_results]
+    if any(p is None for p in preds):
+        return None
+
+    if mode == "odd_even":
+        # If first part is longer, next element belongs to second part, else first part
+        return preds[1] if len(parts[0]) > len(parts[1]) else preds[0]
+
+    if mode == "stride3":
+        lengths = [len(p) for p in parts]
+        min_len = min(lengths)
+
+        # Find which stream is next in the interleaving order
+        for idx, part in enumerate(parts):
+            if len(part) == min_len:
+                return preds[idx]
+
+    return None
+
+
 def try_best_composite_split(seq, expected, kl, mz=1, depth=3):
+    """
+    Try only interpretable composite decomposition strategies.
+    """
     strategies = [
-    ("odd_even", split_odd_even),
-    ("even_odd", split_even_odd),
-    ("stride3", split_stride3),
-    ("stride3_reverse", split_stride3_reverse),
-    ("block2", split_blocks_2),
-    ("block2_reverse", split_blocks_2_reverse),
-    ("block3", split_blocks_3),
-]
+        ("odd_even", split_odd_even),
+        ("stride3", split_stride3),
+    ]
 
     candidates = []
 
-    for name, splitter in strategies:
+    for mode_name, splitter in strategies:
         parts = splitter(seq)
         result = evaluate_split(parts, expected, kl, mz=mz, depth=depth)
-        if result is not None:
-            result["mode"] = name
-            candidates.append(result)
+
+        if result is None:
+            continue
+
+        reconstructed_pred = reconstruct_next_from_split(parts, result["sub_results"], mode_name)
+        result["mode"] = mode_name
+        result["reconstructed_pred"] = reconstructed_pred
+        result["matches_expected"] = reconstructed_pred == expected
+
+        candidates.append(result)
 
     if not candidates:
         return None
 
-    # Prefer all solved, otherwise highest solved_count
-    candidates.sort(key=lambda x: (x["all_solved"], x["solved_count"]), reverse=True)
+    candidates.sort(
+        key=lambda x: (
+            x["matches_expected"],
+            x["all_solved"],
+            x["solved_count"]
+        ),
+        reverse=True
+    )
+
     return candidates[0]
- 
+
+
 def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
     solved = 0
     results = []
+
     for seq in seqs:
-        best_split = None
-        baseline_input = seq[:-1]
+        input_seq = seq[:-1]
         expected = seq[-1]
 
-        # First try original baseline directly
-        h = KitBit(
-            baseline_input, kl, 500000, depth,
-            search_algorithm='BFS',
-            n=1, min_zeros=mz,
-            epsilon=exp(-18),
-            all_solutions=False
-        )
-        x = h.handler()
+        # Step 1: baseline
+        baseline = solve_subsequence_with_kitbit(input_seq + [expected], kl, mz=mz, depth=depth)
+        baseline_pred = baseline["predicted_next"]
+        baseline_ok = baseline_pred == expected
 
-        pred_seq = x[0][0] if x and x[0] else False
-        predicted_next = pred_seq[len(seq)-1] if pred_seq and len(pred_seq) >= len(seq) else None
-        baseline_ok = predicted_next == expected
-
-        mode_used = "baseline"
         final_ok = baseline_ok
-        final_pred = predicted_next
+        final_pred = baseline_pred
+        mode_used = "baseline"
         detail = None
 
-        # If baseline fails, try best decomposition strategy
+        # Step 2: decomposition only if baseline fails
         if not baseline_ok:
-            best_split = try_best_composite_split(seq[:-1], expected, kl, mz=mz, depth=depth)
+            best_split = try_best_composite_split(input_seq, expected, kl, mz=mz, depth=depth)
 
-            if best_split and best_split["all_solved"]:
-                mode_used = f"decomposition-{best_split['mode']}"
+            if best_split and best_split["matches_expected"]:
                 final_ok = True
-                final_pred = expected
+                final_pred = best_split["reconstructed_pred"]
+                mode_used = f"decomposition-{best_split['mode']}"
                 detail = best_split
+
         if final_ok:
             solved += 1
 
         results.append({
-            "input": baseline_input,
+            "input": input_seq,
             "expected": expected,
             "predicted": final_pred,
             "solved": final_ok,
@@ -1651,25 +1640,28 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
     print("\nStill failed sequences:")
     for r in results:
         if not r["solved"]:
-            print(f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}")
+            print(
+                f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}"
+            )
 
     return results
 
-# sols, sols_cad = [], []
-# CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
-# CoList2 = read_path('data/OEIS_KITAS.txt')
-# print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
-# for j in range(len(CoList1)):
-#     seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
-#     pos_sol = seq1[:]
-#     if len(pos_sol) < 4 or len(seq1[:-1])<2:
-#         continue
-#     sols.append(pos_sol)
-#     sols_cad.append(CoList1[j][:-1])
 
-# sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
-# print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
-# write_path('results/OEIS_results.txt', sol_def)
+sols, sols_cad = [], []
+CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
+CoList2 = read_path('data/OEIS_KITAS.txt')
+print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
+for j in range(len(CoList1)):
+    seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
+    pos_sol = seq1[:]
+    if len(pos_sol) < 4 or len(seq1[:-1])<2:
+        continue
+    sols.append(pos_sol)
+    sols_cad.append(CoList1[j][:-1])
+
+sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
+print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
+write_path('results/OEIS_results.txt', sol_def)
 
 
 print("---------------------------- BASELINE --------------")
