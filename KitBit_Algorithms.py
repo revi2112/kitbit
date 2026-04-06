@@ -1217,10 +1217,10 @@ def execute_kitbit_gb_True(seqs, kl, mz, path):
     print(f"[GB-TRUE] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
     print(f"Results saved to: {path}\n")
     
-# execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
-# execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
-# execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
-# execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
+execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
+execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
+execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
+execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
 
 def execute_kitbit_oeis(sols, kl, sols_cad):
     solved, not_solved, q = [], [], 0
@@ -1243,47 +1243,18 @@ def execute_kitbit_oeis(sols, kl, sols_cad):
             solved.append(x)
     return solved, not_solved
 
-#  def execute_series_oeis(sols, kl, depth, N, mz):
-#     for i in range(len(sols)):
-#         seq = sols[i]
-#         h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
-#         x = h.handler()
-#         print(x)
-#         if x[0][0] == seq:
-#             print(True)
-#         h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
-#         x = h.handler()
-#         print(x) 
- 
-# composite_test_set = [
-# #     [1, 10, 2, 20, 3, 30, 4, 40, 5],                 # odd/even interleaving
-# #     [2, 100, 4, 200, 6, 300, 8, 400, 10],           # arithmetic + arithmetic
-# #     [1, 3, 2, 6, 3, 9, 4, 12, 5],                   # natural + multiples of 3
-# #     [1, 1, 2, 4, 3, 9, 4, 16, 5],                   # natural + squares
-# #     [2, 1, 4, 3, 8, 5, 16, 7, 32],                  # powers of 2 + odd numbers
-# #     [1, 2, 1, 4, 2, 6, 3, 8, 5],                    # Fibonacci-ish + evens
-# #     [5, 2, 10, 4, 15, 6, 20, 8, 25],                # multiples of 5 + evens
-# #     [3, 1, 6, 4, 9, 9, 12, 16, 15],                 # multiples of 3 + squares
-# #     [1, 2, 4, 2, 7, 2, 10, 2, 13],                  # arithmetic + constant
-# #     [2, 3, 4, 6, 6, 9, 8, 12, 10],                  # evens + multiples of 3
-# #     [1, 10, 100, 2, 20, 200, 3, 30, 300],          # stride-3 composition
-# #     [2, 5, 8, 3, 6, 9, 4, 7, 10],                  # 3 interleaved arithmetic seqs
-# #     [1, 4, 9, 2, 8, 18, 3, 12, 27],                # squares + doubles + triples
-# #     [7, 1, 14, 2, 21, 3, 28, 4, 35],               # multiples of 7 + counting
-# #     [1, 100, 2, 99, 3, 98, 4, 97, 5],              # increasing + decreasing
-# #     [1, 2, 1, 4, 2, 6, 3, 8, 5],
-# #     [2, 5, 8, 3, 6, 9, 4, 7, 10],
-# # ]
+def execute_series_oeis(sols, kl, depth, N, mz):
+    for i in range(len(sols)):
+        seq = sols[i]
+        h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
+        x = h.handler()
+        print(x)
+        if x[0][0] == seq:
+            print(True)
+        h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
+        x = h.handler()
+        print(x) 
 
-# hard_composite_test_set = [
-#      [1, 1, 2, 3, 3, 6, 4, 10, 5],          # naturals + triangulars
-#      [1, 1, 2, 4, 3, 9, 4, 16, 5],          # naturals + squares
-#      [1, 2, 2, 6, 3, 12, 4, 20, 5],         # naturals + pronic
-#      [2, 1, 3, 3, 5, 6, 7, 10, 11],         # primes + triangular-ish
-#      [1, 10, 100, 2, 20, 200, 3, 30, 300],  # stride-3
-#      [1, 1, 2, 2, 3, 6, 5, 24, 8],          # Fibonacci-ish + factorial-ish
-#      [1, 100, 2, 99, 3, 98, 4, 97, 5],      # increasing + decreasing
-# ]
 #------Daata------
 def interleave2(a, b, take_last_from= "a"):
     """
@@ -1663,30 +1634,27 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
 
     return results
 
-# print("---------------------------- BASELINE --------------")
+sols, sols_cad = [], []
+CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
+CoList2 = read_path('data/OEIS_KITAS.txt')
+print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
+for j in range(len(CoList1)):
+    seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
+    pos_sol = seq1[:]
+    if len(pos_sol) < 4 or len(seq1[:-1])<2:
+        continue
+    sols.append(pos_sol)
+    sols_cad.append(CoList1[j][:-1])
+
+sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
+print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
+write_path('results/OEIS_results.txt', sol_def)
+
+
+print("---------------------------- BASELINE --------------")
 
 baseline_results = run_composite_baseline(composite_test_set, kl2)
 
-# print("----------------------------IMPROVED------------------")
+print("----------------------------IMPROVED------------------")
 
 improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
-
-
-# sols, sols_cad = [], []
-# CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
-# CoList2 = read_path('data/OEIS_KITAS.txt')
-# print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
-# for j in range(len(CoList1)):
-#     seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
-#     pos_sol = seq1[:]
-#     if len(pos_sol) < 4 or len(seq1[:-1])<2:
-#         continue
-#     sols.append(pos_sol)
-#     sols_cad.append(CoList1[j][:-1])
-
-# sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
-# print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
-# write_path('results/OEIS_results.txt', sol_def)
-
-
-
