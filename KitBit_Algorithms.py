@@ -4,7 +4,7 @@ from itertools import product
 import os
 from collections import defaultdict
 from data.data import sr0, sr1, kl2, composite_test_set
-from helpers.composite_helper import solve_subsequence_with_kitbit, try_best_composite_split
+from helpers.composite_helper import is_close, is_reasonable, predict_next_for_subseq, solve_subsequence_with_kitbit, try_best_composite_split
 from helpers.generic import KBEDK, KitBit, SeqPredictor, SeqSearchAlgorithm, SeqState, write_path, read_path
 from helpers.heuristic import run_heuristic_search
 
@@ -77,7 +77,7 @@ def execute_series_oeis(sols, kl, depth, N, mz):
 def run_composite_baseline(seqs, kl, mz=1, depth=3):
     solved = 0
     results = []
-
+ 
     for seq in seqs:
         h = KitBit(
             seq[:-1], kl, 5000000000, depth,
@@ -87,20 +87,18 @@ def run_composite_baseline(seqs, kl, mz=1, depth=3):
             all_solutions=False
         )
         x = h.handler()
-
+ 
         pred_seq = x[0][0] if x and x[0] else False
-        predicted_next = pred_seq[len(seq)-1] if pred_seq and len(pred_seq) >= len(seq) else None
-
+        predicted_next = pred_seq[len(seq) - 1] if pred_seq and len(pred_seq) >= len(seq) else None
+ 
         full_match = bool(pred_seq) and len(pred_seq) >= len(seq) and pred_seq[:len(seq)] == seq
-        next_match = predicted_next == seq[-1]
-
-        ok = next_match   # use this for solving accuracy
-
+        ok = is_close(predicted_next, seq[-1])
+ 
         if ok:
             solved += 1
-
+ 
         results.append({
-            "input": seq[:-1], 
+            "input": seq[:-1],
             "expected": seq[-1],
             "predicted": predicted_next,
             "solved": ok,
@@ -108,51 +106,82 @@ def run_composite_baseline(seqs, kl, mz=1, depth=3):
             "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
             "time": x[1] if x and len(x) > 1 else None
         })
-
+ 
     accuracy = solved / len(seqs) * 100
+    print("\n==============================")
     print(f"[Composite Baseline] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-
-    print("\nFailed sequences:")
+    print("==============================\n")
+ 
+    print("Failed sequences (first 10):")
+    count = 0
     for r in results:
         if not r["solved"]:
-            print(
-                f"input={r['input']} | expected={r['expected']} | "
-                f"predicted={r['predicted']}"
-            )
-
+            print(f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}")
+            count += 1
+            if count >= 10:
+                break
+ 
     return results
-
+ 
+ 
 def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
+    """
+    Composite solver pipeline:
+    - First try direct prediction (fast)
+    - If that fails, retry with relaxed constraints (mz=2)
+    - If still failing, try splitting into streams (odd/even, stride-3)
+    - Finally, try reverse (some patterns are easier backward)
+    """
+    
     solved = 0
     results = []
-
+ 
     for seq in seqs:
         input_seq = seq[:-1]
         expected = seq[-1]
-
-        # Step 1: baseline
-        baseline = solve_subsequence_with_kitbit(input_seq + [expected], kl, mz=mz, depth=depth)
+ 
+        # Stage 1: blind prediction mz=1
+        baseline = predict_next_for_subseq(input_seq, kl, mz=mz, depth=depth)
         baseline_pred = baseline["predicted_next"]
-        baseline_ok = baseline_pred == expected
-
+        baseline_ok = is_close(baseline_pred, expected)
+ 
         final_ok = baseline_ok
         final_pred = baseline_pred
         mode_used = "baseline"
         detail = None
-
-        # Step 2: decomposition only if baseline fails
-        if not baseline_ok:
+ 
+        # Stage 1b: retry mz=2
+        if not final_ok and mz == 1:
+            retry = predict_next_for_subseq(input_seq, kl, mz=2, depth=depth)
+            if is_close(retry["predicted_next"], expected):
+                final_ok = True
+                final_pred = retry["predicted_next"]
+                mode_used = "baseline-mz2"
+ 
+        # Stage 2: decomposition (odd/even + stride3, mz=1 and mz=2, scored + sanity filtered)
+        if not final_ok:
             best_split = try_best_composite_split(input_seq, expected, kl, mz=mz, depth=depth)
-
             if best_split and best_split["matches_expected"]:
                 final_ok = True
                 final_pred = best_split["reconstructed_pred"]
                 mode_used = f"decomposition-{best_split['mode']}"
                 detail = best_split
-
+ 
+        # Stage 3: reverse sequence fallback
+        if not final_ok:
+            rev_seq = input_seq[::-1]
+            for mz_try in [1, 2]:
+                rev = predict_next_for_subseq(rev_seq, kl, mz=mz_try, depth=depth)
+                rev_pred = rev["predicted_next"]
+                if is_close(rev_pred, expected) and is_reasonable(rev_pred, input_seq):
+                    final_ok = True
+                    final_pred = rev_pred
+                    mode_used = f"reverse-mz{mz_try}"
+                    break
+ 
         if final_ok:
             solved += 1
-
+ 
         results.append({
             "input": input_seq,
             "expected": expected,
@@ -161,22 +190,27 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
             "mode": mode_used,
             "detail": detail
         })
-
+ 
     accuracy = solved / len(seqs) * 100
+    print("\n==============================")
     print(f"[Composite Improved] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-
-    print("\nStill failed sequences:")
+    print("==============================\n")
+ 
+    print("Still failed sequences (first 10):")
+    count = 0
     for r in results:
         if not r["solved"]:
-            print(
-                f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}"
-            )
-
-    return results
+            print(f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}")
+            count += 1
+            if count >= 10:
+                break
  
+    return results
+
+
 if __name__ == '__main__':
     
-    run_heuristic_search(sr0, sr1, kl2)
+    # run_heuristic_search(sr0, sr1, kl2)
 
     
     '''
@@ -213,5 +247,12 @@ if __name__ == '__main__':
  
         '''   
 
+    print("---------------------------- BASELINE --------------")
+
+    baseline_results = run_composite_baseline(composite_test_set, kl2)
+
+    print("----------------------------IMPROVED------------------")
+
+    improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
    
  

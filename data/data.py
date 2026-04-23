@@ -1,3 +1,6 @@
+from itertools import combinations
+from random import sample
+
 sr0 = [[0, 1, 1.7071, 2.3660, 3, 3.6180, 4.2247, 4.8229],
       [2, 16, 4, 256, 16, 65536, 256, 4294967296, 65536],
       [3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584],
@@ -209,130 +212,95 @@ def interleave3(a, b, c, take_last_from="c"):
     return out
 
 base_families = {
-    "A000027_naturals":   [1, 2, 3, 4, 5, 6],
-    "A005843_evens":      [2, 4, 6, 8, 10, 12],
-    "A005408_odds":       [1, 3, 5, 7, 9, 11],
-    "A000217_triangular": [1, 3, 6, 10, 15, 21],
-    "A000290_squares":    [1, 4, 9, 16, 25, 36],
-    "A000578_cubes":      [1, 8, 27, 64, 125, 216],
-    "A000040_primes":     [2, 3, 5, 7, 11, 13],
-    "A000045_fib":        [1, 1, 2, 3, 5, 8],
-    "A000142_factorial":  [1, 2, 6, 24, 120, 720],
-    "A001477_posints":    [0, 1, 2, 3, 4, 5]
+    "A000027_naturals":    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "A005843_evens":       [2, 4, 6, 8, 10, 12, 14, 16, 18],
+    "A005408_odds":        [1, 3, 5, 7, 9, 11, 13, 15, 17],
+    "A000217_triangular":  [1, 3, 6, 10, 15, 21, 28, 36, 45],
+    "A000290_squares":     [1, 4, 9, 16, 25, 36, 49, 64, 81],
+    "A000578_cubes":       [1, 8, 27, 64, 125, 216, 343, 512, 729],
+    "A000244_powers3":     [1, 3, 9, 27, 81, 243, 729, 2187, 6561],  
+    "A000045_fib":         [1, 1, 2, 3, 5, 8, 13, 21, 34],
+    "A000984_powers2":     [1, 2, 4, 8, 16, 32, 64, 128, 256],
+    "A001844_centered_sq": [1, 5, 13, 25, 41, 61, 85, 113, 145],    
 }
-
-direct_composite_set = [
-    [1, 1, 2, 3, 3, 6, 4, 10, 5],      # naturals + triangular
-    [1, 1, 2, 4, 3, 9, 4, 16, 5],      # naturals + squares
-    [1, 1, 2, 8, 3, 27, 4, 64, 5],     # naturals + cubes
-    [2, 1, 4, 3, 6, 6, 8, 10, 10],     # evens + triangular
-    [1, 2, 2, 3, 3, 5, 4, 7, 5],       # naturals + primes
-    [1, 1, 2, 1, 3, 2, 4, 3, 5],       # naturals + fib
-    [2, 1, 4, 4, 6, 9, 8, 16, 10],     # evens + squares
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],       # simple merge style
-    [1, 2, 2, 6, 3, 12, 4, 20, 5],     # naturals + n(n+1)
-    [1, 100, 2, 99, 3, 98, 4, 97, 5],  # increasing + decreasing
-]
-
 constructed_composite_set = []
 
-pairs = [
-    ("A000027_naturals", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares"),
-    ("A000027_naturals", "A000578_cubes"),
-    ("A000027_naturals", "A000040_primes"),
-    ("A000027_naturals", "A000045_fib"),
-    ("A005843_evens", "A000217_triangular"),
-    ("A005843_evens", "A000290_squares"),
-    ("A005843_evens", "A000578_cubes"),
-    ("A005843_evens", "A000045_fib"),
-    ("A005843_evens", "A000040_primes"),
-    ("A005408_odds", "A000217_triangular"),
-    ("A005408_odds", "A000290_squares"),
-    ("A005408_odds", "A000040_primes"),
-    ("A000045_fib", "A000217_triangular"),
-    ("A000045_fib", "A000290_squares"),
-    ("A000040_primes", "A000290_squares"),
-    ("A000040_primes", "A000217_triangular"),
-]
-
-# make 15 pairwise 
-for a_name, b_name in pairs:
-    a = base_families[a_name]
-    b = base_families[b_name]
-    seq = interleave2(a, b, take_last_from="a")[:9]
-    constructed_composite_set.append({
-        "sequence": seq,
-        "source": f"{a_name} + {b_name}",
-        "type": "pair_interleave"
-    })
-
-# 15 triple 
-triples = [
-    ("A000027_naturals", "A005843_evens", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares", "A000040_primes"),
-    ("A000027_naturals", "A000045_fib", "A000217_triangular"),
-    ("A005408_odds", "A000290_squares", "A000040_primes"),
-    ("A005843_evens", "A000217_triangular", "A000040_primes"),
-    ("A000027_naturals", "A000578_cubes", "A000040_primes"),
-    ("A000045_fib", "A000290_squares", "A000217_triangular"),
-    ("A005408_odds", "A000217_triangular", "A000045_fib"),
-    ("A005843_evens", "A000290_squares", "A000045_fib"),
-    ("A000027_naturals", "A000040_primes", "A000142_factorial"),
-    ("A005408_odds", "A000040_primes", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares", "A000217_triangular"),
-    ("A005843_evens", "A000040_primes", "A000290_squares"),
-    ("A000045_fib", "A000040_primes", "A000217_triangular"),
-    ("A000027_naturals", "A005408_odds", "A000040_primes"),
-]
-
-for a_name, b_name, c_name in triples:
-    a = base_families[a_name]
-    b = base_families[b_name]
-    c = base_families[c_name]
-    seq = interleave3(a, b, c, take_last_from="a")[:9]
-    constructed_composite_set.append({
-        "sequence": seq,
-        "source": f"{a_name} + {b_name} + {c_name}",
-        "type": "triple_interleave"
-    })
-
-composite_dataset = []
-composite_dataset.extend(direct_composite_set)
-composite_dataset.extend(constructed_composite_set)
-
-seen = set()
-unique_composite_dataset = []
-
-for item in composite_dataset:
-    if isinstance(item, dict):
-        seq_tuple = tuple(item["sequence"])
-    else:
-        seq_tuple = tuple(item)
-
-    if seq_tuple not in seen:
-        seen.add(seq_tuple)
-        unique_composite_dataset.append(item)
-
-composite_dataset = unique_composite_dataset
-
-extra_composites = [
-    [1, 2, 2, 6, 3, 24, 4, 120, 5],     # naturals + factorial
-    [2, 1, 3, 2, 5, 6, 7, 24, 11],      # primes + factorial
-    [1, 2, 4, 3, 9, 5, 16, 7, 25],      # squares + primes
-    [1, 1, 3, 2, 6, 6, 10, 24, 15],     # triangular + factorial
-    [2, 1, 3, 1, 5, 2, 7, 3, 11],       # primes + fib
-    [1, 1, 4, 2, 9, 3, 16, 5, 25],      # squares + fib
-    [2, 1, 4, 2, 6, 6, 8, 24, 10],      # evens + factorial
-]
-
-for seq in extra_composites:
-    seq_tuple = tuple(seq)
-    if seq_tuple not in seen:
-        seen.add(seq_tuple)
-        composite_dataset.append(seq)
-
+def build_composite_dataset(families=base_families):
+    SEQ_LEN = 9
+    seen = set()
+    result = []
+ 
+    def add(seq, source, strategy):
+        if len(seq) < SEQ_LEN:
+            return
+ 
+        key = tuple(seq[:SEQ_LEN])
+        if len(set(key)) < 3:
+            return
+        if any(x == 0 for x in key):
+            return
+        if max(key) > 1000:
+            return
+        diffs = [abs(key[i+1] - key[i]) for i in range(len(key)-1)]
+        if max(diffs) > 220:
+            return
+ 
+        if key not in seen:
+            seen.add(key)
+            result.append({
+                "sequence": list(key),
+                "source": source,
+                "strategy": strategy
+            })
+ 
+    names = list(families.keys())
+ 
+    pair_combos = list(combinations(names, 2))
+    pair_combos = sample(pair_combos, min(40, len(pair_combos)))
+ 
+    for na, nb in pair_combos:
+        a, b = families[na], families[nb]
+ 
+        for (x, xn), (y, yn) in [((a, na), (b, nb)), ((b, nb), (a, na))]:
+            for last in ("a", "b"):
+                seq = interleave2(x, y, take_last_from=last)
+                add(seq, f"{xn}+{yn}", f"pair_last={last}")
+ 
+    triple_combos = list(combinations(names, 3))
+    triple_combos = sample(triple_combos, min(25, len(triple_combos)))
+ 
+    for na, nb, nc in triple_combos:
+        a, b, c = families[na], families[nb], families[nc]
+ 
+        for (x, xn), (y, yn), (z, zn) in [
+            ((a, na), (b, nb), (c, nc)),
+            ((b, nb), (c, nc), (a, na)),
+            ((c, nc), (a, na), (b, nb)),
+        ]:
+            for last in ("a", "b", "c"):
+                seq = interleave3(x, y, z, take_last_from=last)
+                add(seq, f"{xn}+{yn}+{zn}", f"triple_last={last}")
+ 
+    # manual (prime-free, all streams solvable by KitBit)
+    extra_composites = [
+        [1,2,2,6,3,24,4,120,5],    # naturals + factorials
+        [1,1,2,3,3,9,4,27,5],      # naturals + powers3
+        [1,2,4,3,9,5,16,7,25],     # squares + naturals
+        [1,1,3,2,6,6,10,24,15],    # triangular + factorials
+        [2,1,4,3,6,6,8,10,10],     # evens + triangular
+    ]
+ 
+    for seq in extra_composites:
+        add(seq, "manual", "handcrafted")
+ 
+    return result
+ 
+composite_dataset = build_composite_dataset()
+ 
 composite_test_set = [
     item["sequence"] if isinstance(item, dict) else item
     for item in composite_dataset
 ]
+ 
+print(f"\n[DEBUG] Dataset size: {len(composite_test_set)}")
+print(f"[DEBUG] Sample: {composite_test_set[:2]}\n")
