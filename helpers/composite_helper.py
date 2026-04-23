@@ -59,9 +59,7 @@ def next_stream_index(seq_len, num_streams):
     return seq_len % num_streams
 
 
-# ---------------------------------------------------------------------------
-# Fix 1: Sanity filter — reject predictions that are wildly out of range
-# ---------------------------------------------------------------------------
+#  Sanity filter — reject predictions that are wildly out of range
 
 def is_reasonable(pred, seq):
     """
@@ -78,11 +76,6 @@ def is_reasonable(pred, seq):
     if abs(pred) > 3 * seq_max:
         return False
     return True
-
-
-# ---------------------------------------------------------------------------
-# Fix 2: Scoring function — rank candidates by quality, not just binary flags
-# ---------------------------------------------------------------------------
 
 def score_candidate(candidate, seq):
     """
@@ -108,13 +101,6 @@ def score_candidate(candidate, seq):
 
 
 def evaluate_split(parts, expected, kl, mz=1, depth=3):
-    """
-    Blind-predict each stream independently (no expected-value leakage).
-    Target stream is determined by position arithmetic.
-
-    Guard lowered to >= 2 elements: stride3 target stream legitimately has
-    2 elements when input length is 8 (8 % 3 = 2).
-    """
     if any(len(part) < 2 for part in parts):
         return None
 
@@ -147,19 +133,10 @@ def reconstruct_next_from_split(parts, sub_results, mode):
 
 
 def try_best_composite_split(seq, expected, kl, mz=1, depth=3):
-    """
-    Try odd_even and stride3 decompositions.
-
-    Fix 3: Always try both mz=1 and mz=2 regardless of input mz,
-    so harder subsequences get a second chance.
-
-    Fix 2: Rank candidates with score_candidate() instead of binary flags.
-    Fix 1: Filter out unreasonable predictions before returning.
-    """
+  
     strategies = [("odd_even", split_odd_even), ("stride3", split_stride3)]
     candidates = []
 
-    # Fix 3: always try both mz values
     for mz_try in [1, 2]:
         for mode_name, splitter in strategies:
             parts = splitter(seq)
@@ -173,14 +150,11 @@ def try_best_composite_split(seq, expected, kl, mz=1, depth=3):
     if not candidates:
         return None
 
-    # Fix 2: score-based ranking
     candidates.sort(key=lambda x: score_candidate(x, seq), reverse=True)
 
     best = candidates[0]
 
-    # Fix 1: sanity check — reject if prediction is unreasonable
     if not is_reasonable(best["reconstructed_pred"], seq):
-        # Try next candidate that passes sanity check
         for c in candidates[1:]:
             if is_reasonable(c["reconstructed_pred"], seq):
                 return c
