@@ -206,6 +206,7 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
 
 if __name__ == '__main__':
     
+    '''    
     execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
     execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
     execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
@@ -236,5 +237,6 @@ if __name__ == '__main__':
     print("----------------------------IMPROVED------------------")
 
     improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
-    
+        '''
+
     run_heuristic_search(sr0, sr1, kl2)

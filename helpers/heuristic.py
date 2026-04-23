@@ -23,8 +23,8 @@ def learn_kita_success_rates(seqs, kl, mz=1, depth=3, epsilon=exp(-18), n=1):
 
 
 def make_heuristic_kl(kl, success_counts):
-    seen   = sorted([k for k in kl if success_counts.get(k, 0) > 0],
-                    key=lambda k: -success_counts[k])
+    # list of seen and unseen kita 
+    seen = sorted([k for k in  kl if success_counts.get(k,0) > 0], key= lambda k: -success_counts[k] )
     unseen = [k for k in kl if success_counts.get(k, 0) == 0]
     return seen + unseen
 
@@ -81,7 +81,7 @@ def count_nodes(seq, kl, mz, depth, epsilon=exp(-18), n=1):
 
 
 def solve(seq, kl, mz, depth, epsilon=exp(-18), n=1):
-    h = KitBit(seq[:-1], kl, 5_000_000, depth,
+    h = KitBit(seq[:-1], kl, 5000000, depth,
                search_algorithm='BFS', n=n,
                min_zeros=mz, epsilon=epsilon, all_solutions=False)
     r = h.handler()
@@ -96,6 +96,10 @@ def run_heuristic_search(sr0, sr1, kl2):
     print("\nPhase 1: learning kita success rates from sr0\n")
     counts = learn_kita_success_rates(sr0, kl2, mz=1, depth=3)
     kl_heur = make_heuristic_kl(kl2, counts)
+    
+    # sr0_train, sr0_test = sr0[:len(sr0)//2], sr0[len(sr0)//2:]
+    # counts   = learn_kita_success_rates(sr0_train, kl2, ...)
+    # kl_heur  = make_heuristic_kl(kl2, counts)
 
     for kita, cnt in sorted(counts.items(), key=lambda x: -x[1]):
         print(f"  {kita:<30} {cnt} hits  ({cnt/len(sr0)*100:.1f}%)")
@@ -105,24 +109,21 @@ def run_heuristic_search(sr0, sr1, kl2):
     # --- Phase 2: compare ---
     print("Phase 2: before vs after\n")
 
-    for label, seqs in [("sr0 - IQ series", sr0), ("sr1 - literature", sr1)]:
+    for label, seqs in [("sr0 - IQ series (train, seen)", sr0), ("sr1 - literature (benchmark, un seen)", sr1)]:
         solved_before = solved_after = 0
         nodes_before_list = []
         nodes_after_list  = []
         faster = slower = same = fallbacks = 0
 
         for seq in seqs:
-            nb = count_nodes(seq, kl2,    mz=1, depth=3)
+            nb = count_nodes(seq, kl2, mz=1, depth=3)
             na = count_nodes(seq, kl_heur, mz=1, depth=3)
 
-            sb = solve(seq, kl2,     mz=1, depth=3)
+            sb = solve(seq, kl2, mz=1, depth=3)
             sa = solve(seq, kl_heur, mz=1, depth=3)
 
-            used_fallback = False
             if sb and not sa:
-                sa = True
-                na = nb
-                used_fallback = True
+                # heuristic failed, fell back to baseline — count it as baseline cost
                 fallbacks += 1
 
             solved_before += sb
@@ -144,5 +145,5 @@ def run_heuristic_search(sr0, sr1, kl2):
         print(f"  faster:        {faster} seqs  ({saved} nodes saved)")
         print(f"  slower:        {slower} seqs")
         print(f"  unchanged:     {same} seqs")
-        print(f"  fallbacks:     {fallbacks}")
+        print(f"  regressions:   {fallbacks}")
         print()
