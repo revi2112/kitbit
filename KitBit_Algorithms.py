@@ -1,11 +1,7 @@
-from math import exp, floor
-from math import fabs, log, inf, ceil
-from itertools import product
-import os
-from collections import defaultdict
+from math import exp
 from data.data import sr0, sr1, kl2, composite_test_set
-from helpers.composite_helper import is_close, is_reasonable, predict_next_for_subseq, solve_subsequence_with_kitbit, try_best_composite_split
-from helpers.generic import KBEDK, KitBit, SeqPredictor, SeqSearchAlgorithm, SeqState, write_path, read_path
+from helpers.composite_helper import is_close, is_reasonable, predict_next_for_subseq, try_best_composite_split
+from helpers.generic import KitBit, write_path, read_path
 from helpers.heuristic import run_heuristic_search
 
 def execute_kitbit_gb_False(seqs, kl, mz, path):
@@ -210,10 +206,6 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
 
 if __name__ == '__main__':
     
-    # run_heuristic_search(sr0, sr1, kl2)
-
-    
-    '''
     execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
     execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
     execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
@@ -244,15 +236,5 @@ if __name__ == '__main__':
     print("----------------------------IMPROVED------------------")
 
     improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
- 
-        '''   
-
-    print("---------------------------- BASELINE --------------")
-
-    baseline_results = run_composite_baseline(composite_test_set, kl2)
-
-    print("----------------------------IMPROVED------------------")
-
-    improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
-   
- 
+    
+    run_heuristic_search(sr0, sr1, kl2)
