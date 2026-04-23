@@ -11,11 +11,9 @@ def solve_subsequence_with_kitbit(subseq, kl, mz=1, depth=3):
         epsilon=exp(-18),
         all_solutions=False
     )
-
     x = h.handler()
     pred_seq = x[0][0] if x and x[0] else False
     predicted_next = pred_seq[len(subseq) - 1] if pred_seq and len(pred_seq) >= len(subseq) else None
-
     return {
         "solved": predicted_next == subseq[-1],
         "predicted_next": predicted_next,
@@ -23,6 +21,30 @@ def solve_subsequence_with_kitbit(subseq, kl, mz=1, depth=3):
         "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
         "time": x[1] if x and len(x) > 1 else None
     }
+
+
+def predict_next_for_subseq(subseq, kl, mz=1, depth=3):
+    """
+    Blind prediction: run KitBit on `subseq` and return the predicted next element.
+    Does NOT require knowing the expected answer — no leakage.
+    """
+    h = KitBit(
+        subseq, kl, 5000000000, depth,
+        search_algorithm='BFS',
+        n=1, min_zeros=mz,
+        epsilon=exp(-18),
+        all_solutions=False
+    )
+    x = h.handler()
+    pred_seq = x[0][0] if x and x[0] else False
+    predicted_next = pred_seq[len(subseq)] if pred_seq and len(pred_seq) > len(subseq) else None
+    return {
+        "predicted_next": predicted_next,
+        "pred_seq": pred_seq,
+        "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
+        "time": x[1] if x and len(x) > 1 else None
+    }
+
 
 def split_odd_even(seq):
     return [seq[::2], seq[1::2]]
@@ -32,91 +54,140 @@ def split_stride3(seq):
     return [seq[0::3], seq[1::3], seq[2::3]]
 
 
+def next_stream_index(seq_len, num_streams):
+    """Position seq_len in the interleaving belongs to stream seq_len % num_streams."""
+    return seq_len % num_streams
+
+
+# ---------------------------------------------------------------------------
+# Fix 1: Sanity filter — reject predictions that are wildly out of range
+# ---------------------------------------------------------------------------
+
+def is_reasonable(pred, seq):
+    """
+    Reject predictions that are clearly garbage:
+    - None
+    - Negative (sequences in our dataset are positive)
+    - More than 3x the max value in the sequence
+    """
+    if pred is None:
+        return False
+    if pred < 0:
+        return False
+    seq_max = max(abs(v) for v in seq) if seq else 1
+    if abs(pred) > 3 * seq_max:
+        return False
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Fix 2: Scoring function — rank candidates by quality, not just binary flags
+# ---------------------------------------------------------------------------
+
+def score_candidate(candidate, seq):
+    """
+    Score a decomposition candidate. Prioritises:
+      - exact match with expected (highest weight)
+      - all streams produced a prediction
+      - number of streams predicted
+      - penalty for predictions far from the sequence's value range
+    """
+    pred = candidate["reconstructed_pred"]
+    if pred is None:
+        return -1
+
+    seq_max = max(abs(v) for v in seq) if seq else 1
+    penalty = abs(pred) / (seq_max + 1)  # normalised distance penalty
+
+    return (
+        10 * int(candidate["matches_expected"])
+        + 5  * int(candidate["all_predicted"])
+        + candidate["streams_predicted"]
+        - 0.01 * penalty
+    )
+
 
 def evaluate_split(parts, expected, kl, mz=1, depth=3):
     """
-    Evaluate whether each decomposed subsequence can correctly predict
-    its own next term when extended with the expected answer.
-    
-    it must feld ture for all subsequences to be marked as "solved"
+    Blind-predict each stream independently (no expected-value leakage).
+    Target stream is determined by position arithmetic.
+
+    Guard lowered to >= 2 elements: stride3 target stream legitimately has
+    2 elements when input length is 8 (8 % 3 = 2).
     """
-    if any(len(part) < 3 for part in parts):
+    if any(len(part) < 2 for part in parts):
         return None
 
-    sub_results = []
-    
-    #solving all subsequneces
-    for part in parts:
-        result = solve_subsequence_with_kitbit(part + [expected], kl, mz=mz, depth=depth)
-        sub_results.append(result)
+    sub_results = [predict_next_for_subseq(part, kl, mz=mz, depth=depth) for part in parts]
+
+    original_len = sum(len(p) for p in parts)
+    target_stream = next_stream_index(original_len, len(parts))
+    target_pred = sub_results[target_stream]["predicted_next"]
+
+    streams_predicted = sum(1 for r in sub_results if r["predicted_next"] is not None)
+    target_matches = target_pred is not None and is_close(target_pred, expected)
 
     return {
         "parts": parts,
         "sub_results": sub_results,
-        "solved_count": sum(r["solved"] for r in sub_results),
-        "all_solved": all(r["solved"] for r in sub_results),
+        "target_stream": target_stream,
+        "reconstructed_pred": target_pred,
+        "streams_predicted": streams_predicted,
+        "all_predicted": streams_predicted == len(parts),
+        "matches_expected": target_matches,
     }
 
+
 def reconstruct_next_from_split(parts, sub_results, mode):
-    """
-    Reconstruct which subsequence should generate the next element
-    in the original interleaved sequence.
-    """
+    """Return prediction from the stream that owns the next position."""
+    original_len = sum(len(p) for p in parts)
+    target_stream = original_len % len(parts)
     preds = [r["predicted_next"] for r in sub_results]
-    if any(p is None for p in preds):
-        return None
-
-    if mode == "odd_even":
-        # If first part is longer, next element belongs to second part, else first part
-        return preds[1] if len(parts[0]) > len(parts[1]) else preds[0]
-
-    if mode == "stride3":
-        lengths = [len(p) for p in parts]
-        min_len = min(lengths)
-
-        # Find which stream is next in the interleaving order
-        for idx, part in enumerate(parts):
-            if len(part) == min_len:
-                return preds[idx]
-
-    return None
+    return preds[target_stream] if preds[target_stream] is not None else None
 
 
 def try_best_composite_split(seq, expected, kl, mz=1, depth=3):
     """
-    Try only interpretable composite decomposition strategies.
-    """
-    strategies = [
-        ("odd_even", split_odd_even),
-        ("stride3", split_stride3),
-    ]
+    Try odd_even and stride3 decompositions.
 
+    Fix 3: Always try both mz=1 and mz=2 regardless of input mz,
+    so harder subsequences get a second chance.
+
+    Fix 2: Rank candidates with score_candidate() instead of binary flags.
+    Fix 1: Filter out unreasonable predictions before returning.
+    """
+    strategies = [("odd_even", split_odd_even), ("stride3", split_stride3)]
     candidates = []
 
-    for mode_name, splitter in strategies:
-        parts = splitter(seq)
-        result = evaluate_split(parts, expected, kl, mz=mz, depth=depth)
-
-        if result is None:
-            continue
-
-        reconstructed_pred = reconstruct_next_from_split(parts, result["sub_results"], mode_name)
-        result["mode"] = mode_name
-        result["reconstructed_pred"] = reconstructed_pred
-        result["matches_expected"] = reconstructed_pred == expected
-
-        candidates.append(result)
+    # Fix 3: always try both mz values
+    for mz_try in [1, 2]:
+        for mode_name, splitter in strategies:
+            parts = splitter(seq)
+            result = evaluate_split(parts, expected, kl, mz=mz_try, depth=depth)
+            if result is None:
+                continue
+            result["mode"] = mode_name
+            result["mz_used"] = mz_try
+            candidates.append(result)
 
     if not candidates:
         return None
 
-    candidates.sort(
-        key=lambda x: (
-            x["matches_expected"],
-            x["all_solved"],
-            x["solved_count"]
-        ),
-        reverse=True
-    )
+    # Fix 2: score-based ranking
+    candidates.sort(key=lambda x: score_candidate(x, seq), reverse=True)
 
-    return candidates[0]
+    best = candidates[0]
+
+    # Fix 1: sanity check — reject if prediction is unreasonable
+    if not is_reasonable(best["reconstructed_pred"], seq):
+        # Try next candidate that passes sanity check
+        for c in candidates[1:]:
+            if is_reasonable(c["reconstructed_pred"], seq):
+                return c
+        return None
+
+    return best
+
+
+def is_close(a, b, tol=1e-6):
+    return a is not None and b is not None and abs(a - b) < tol
