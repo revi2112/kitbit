@@ -324,6 +324,10 @@ if __name__ == '__main__':
     print("----------------------------IMPROVED------------------")
 
     improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
+
+    print("----------------------------Heuristic------------------")
+    
+    run_heuristic_search(sr0, sr1, kl2)
        
     print("---------------- PRIME DATASET ----------------")
     
@@ -334,8 +338,5 @@ if __name__ == '__main__':
     print("\n---------------- PRIME BASELINE ----------------")
     run_prime_baseline(prime_test_set, kl2)
 
-    print("----------------------------Heuristic------------------")
-
     print("\n---------------- PRIME IMPROVED ----------------")
     run_prime_improved(prime_test_set, kl2)
-    run_heuristic_search(sr0, sr1, kl2)
