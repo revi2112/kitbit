@@ -3,6 +3,8 @@ from data.data import sr0, sr1, kl2, composite_test_set
 from helpers.composite_helper import is_close, is_reasonable, predict_next_for_subseq, try_best_composite_split
 from helpers.generic import KitBit, write_path, read_path
 from helpers.heuristic import run_heuristic_search
+from data.prime_data import prime_test_set
+from helpers.prime_helper import deep_prime_fallback, predict_next_for_subseq as predict_prime_next, is_close as is_prime_close
 
 def execute_kitbit_gb_False(seqs, kl, mz, path):
     results, solved = [], 0
@@ -202,7 +204,92 @@ def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
                 break
  
     return results
+def run_prime_baseline(seqs, kl, mz=1, depth=2):
+    solved = 0
+    results = []
 
+    for seq in seqs:
+        baseline = predict_prime_next(seq[:-1], kl, mz=mz, depth=depth)
+        predicted_next = baseline["predicted_next"]
+        ok = is_prime_close(predicted_next, seq[-1])
+
+        if ok:
+            solved += 1
+
+        results.append({
+            "input": seq[:-1],
+            "expected": seq[-1],
+            "predicted": predicted_next,
+            "solved": ok,
+            "mode": "baseline"
+        })
+
+    accuracy = solved / len(seqs) * 100
+    print("\n==============================")
+    print(f"[Prime Baseline] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
+    print("==============================\n")
+
+    print("Failed sequences (first 10):")
+    count = 0
+    for r in results:
+        if not r["solved"]:
+            print(f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}")
+            count += 1
+            if count >= 10:
+                break
+
+    return results
+
+
+def run_prime_improved(seqs, kl, mz=1, depth=2, fallback_limit=30):
+    solved = 0
+    results = []
+    fallback_used = 0
+
+    for seq in seqs:
+        input_seq = seq[:-1]
+        expected = seq[-1]
+
+        final_pred, mode_used = deep_prime_fallback(input_seq)
+
+        if final_pred is None and fallback_used < fallback_limit:
+            retry = predict_prime_next(input_seq, kl, mz=mz, depth=depth)
+            final_pred = retry["predicted_next"]
+            mode_used = "kitbit-fallback"
+            fallback_used += 1
+
+        if final_pred is None:
+            mode_used = "no-match"
+
+        ok = is_prime_close(final_pred, expected)
+
+        if ok:
+            solved += 1
+
+        results.append({
+            "input": input_seq,
+            "expected": expected,
+            "predicted": final_pred,
+            "solved": ok,
+            "mode": mode_used
+        })
+
+    accuracy = solved / len(seqs) * 100
+    print("\n==============================")
+    print(f"[Prime Improved] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
+    print(f"[Prime Improved] KitBit fallback used on: {fallback_used} sequences")
+    print("==============================\n")
+
+    print("Still failed sequences (first 10):")
+    count = 0
+    for r in results:
+        if not r["solved"]:
+            print(f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']} | mode={r['mode']}")
+            count += 1
+            if count >= 10:
+                break
+
+    return results
 
 if __name__ == '__main__':
     
@@ -237,7 +324,18 @@ if __name__ == '__main__':
     print("----------------------------IMPROVED------------------")
 
     improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
+       
+    print("---------------- PRIME DATASET ----------------")
+    
+    from data.prime_data import prime_test_set
+    
+    print(f"[Prime Dataset] Loaded: {len(prime_test_set)} sequences")
+
+    print("\n---------------- PRIME BASELINE ----------------")
+    run_prime_baseline(prime_test_set, kl2)
 
     print("----------------------------Heuristic------------------")
 
+    print("\n---------------- PRIME IMPROVED ----------------")
+    run_prime_improved(prime_test_set, kl2)
     run_heuristic_search(sr0, sr1, kl2)
