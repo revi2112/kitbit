@@ -293,7 +293,7 @@ def run_prime_improved(seqs, kl, mz=1, depth=2, fallback_limit=30):
 
 if __name__ == '__main__':
     
-    '''    
+      
     execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
     execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
     execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     print("----------------------------IMPROVED------------------")
 
     improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
-        '''
+       
     print("---------------- PRIME DATASET ----------------")
     
     from data.prime_data import prime_test_set
@@ -333,6 +333,8 @@ if __name__ == '__main__':
 
     print("\n---------------- PRIME BASELINE ----------------")
     run_prime_baseline(prime_test_set, kl2)
+
+    print("----------------------------Heuristic------------------")
 
     print("\n---------------- PRIME IMPROVED ----------------")
     run_prime_improved(prime_test_set, kl2)
