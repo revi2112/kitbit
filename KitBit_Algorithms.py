@@ -998,676 +998,196 @@ class SeqPredictor:
             edk2.eos[0] = seq
         return edk2.eos
 
-sr0 = [[0, 1, 1.7071, 2.3660, 3, 3.6180, 4.2247, 4.8229],
-      [2, 16, 4, 256, 16, 65536, 256, 4294967296, 65536],
-      [3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584],
-      [1, 3, 7, 12, 18, 26, 35, 45, 57, 70, 84, 100, 117, 135],
-      [0, 3, 12, 17, 102, 109, 872, 881],
-      [0, 3, 8, 24, 63, 168, 440, 1155, 3024, 7920],
-      [1, 3, 6, 10, 15, 21, 28, 36],
-      [1, 0, -1, 0, 1, 0, -1, 0, 1],
-      [1, 3, 5, 7, 9, 11, 13, 15, 17],
-      [1, 2, 4, 7, 11, 16, 22, 29],
-      [1, 4, 9, 16, 25, 36, 49, 64, 81],
-      [3, 5, 10, 12, 24, 26, 52, 54, 108],
-      [3, 4, 8, 17, 33, 58, 94, 143],
-      [3, 6, 18, 72, 360, 2160, 15120, 120960],
-      [4, 5, 8, 13, 20, 29, 40, 53],
-      [5, 11, 17, 23, 29, 35, 41],
-      [11, 9, 7, 5, 3, 1, -1, -3],
-      [30, 29, 27, 26, 24, 23, 21, 20, 18, 17, 15],
-      [144, 121, 100, 81, 64, 49, 36, 25],
-      [2, 2, 4, 6, 10, 16, 26, 42, 68],
-      [81, 27, 9, 3, 1, 0.3333333333333333, 0.1111111111111111],
-      [1, 1, 2, 3, 5, 8, 13, 21],
-      [21, 20, 18, 15, 11, 6, 0],
-      [8, 6, 7, 5, 6, 4, 5, 3, 4],
-      [4294967296, 65536, 256, 16, 4, 2],
-      [3, 7, 14, 24, 37, 53, 72],
-      [-3, -1, 2, 6, 11, 17, 24],
-      [-1, 0, 3, 8, 15, 24, 35],
-      [-9, 2, 12, 21, 29, 36, 42],
-      [1, 0, 0, 1, 3, 6, 10, 15],
-      [2, 2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128, 256, 256],
-      [8, 6, 4, 3, 1, -1, -2, -4, -6, -7, -9, -11, -12, -14, -16],
-      [362880, 40320, 5040, 720, 120, 24, 6, 2, 1, 1],
-      [14, 1, -5.5, -8.75, -10.375, -11.1875, -11.59375],
-      [-1, -1, 0, 2, 5, 9, 14, 20],
-      [-2, 3, 1, 4, 5, 9, 14, 23],
-      [-3, -1, -4, 0, -5, 1, -6, 2, -7],
-      [-4, -1, -3, 0, -2, 1, -1, 2, 0],
-      [1, 2, 0, 2, -1, 2, -2, 2, -3],
-      [1, -1, 0, -3, -1, -5, -2, -7, -3, -9],
-      [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
-      [-2, 0, -3, 1, -4, 2, -5, 3, -6],
-      [23, 34, 45, 56, 67, 78],
-      [-4, -3, 0, 5, 12, 21, 32],
-      [-4, -2, 2, 8, 16, 26, 38],
-      [6, 4, 0, -6, -14, -24, -36],
-      [-2, 0, 4, 10, 18, 28, 40],
-      [-6, -1, 5, 12, 20, 29, 39],
-      [6400, 1600, 400, 100, 25, 6.25, 1.5625],
-      [0, 7, 24, 51, 88, 135, 192],
-      [2, 4, 12, 48, 240, 1440, 10080],
-      [-10, 12, 44, 86, 138, 200, 272],
-      [1, 0, 1, 1, 1, 2, 1, 3, 1, 4],
-      [-1, 2, -2, -4, 8, -32, -256, 8192],
-      [-10, 0, 15, 35, 60, 90, 125, 165],
-      [-2, -1, 1, 5, 13, 29, 61, 125],
-      [-3, -2, 0, 1, 3, 4, 6, 7, 9],
-      [1, 2, 6, 14, 29, 56, 102, 176, 289],
-      [0, 1, 2, 8, 29, 80, 181, 357, 638],
-      [8, 1, 0, -1, -8, -27, -64, -125, -216],
-      [0, 2, 9, 28, 75, 186, 441, 1016, 2295, 5110, 11253, 24564],
-      [3, 6, 18, 36, 108, 216, 648, 1296, 3888, 7776, 23328, 46656, 139968],
-      [2, 3, 5, 9, 17, 33, 65, 129, 257, 513, 1025, 2049, 4097, 8193],
-      [2, 10, 26, 50, 82, 122, 170, 226, 290, 362, 442, 530, 626],
-      [4, 1, 0, 1, 4, 9, 16, 25, 36],
-      [9, 3, 6, 6, 2, 5, 3, 1, 4, 0, 0, 3, -3],
-      [-9, 1, -5, 3, -4, 2, -6, -2, -11, -9],
-      [97.5, 57, 30, 12, 0, -8, -13.333333333333332],
-      [6, 4, 3, 3, 2, 2, 3, 1, 6, 0, 11, -1],
-      [7, 16, 52, 196, 772, 3076, 12292],
-      [2, 3, 5, 4, 2, 4, 7, 5, 2, 5, 9, 6, 2, 6, 11, 7, 2],
-      [8, 0, 2, 0, 0, 0, 2, 0, 8, 0, 18, 0],
-      [3, 0, 1, -1, -2, -5, -9, -16],
-      [1, 0, -1, -1, -2, -1, -3, -4, -1, -5],
-      [3, 9, 22.5, 45, 67.5, 67.5, 33.75, 0],
-      [0, 2, 9, 24, 50, 90, 147, 224],
-      [3, 8, 16, 28, 45, 68, 98, 136],
-      [0, 0, 4, 5, 14, 16, 30, 33, 52, 56],
-      [0, 8, 15, 35, 48, 80, 99, 143, 168, 224],
-      [4, 32, 108, 256, 500, 864, 1372, 2048],
-      [0, 17, 74, 195, 404, 725, 1182, 1799],
-      [6, 24, 60, 120, 210, 336, 504, 720],
-      [3, 6, 15, 42, 123, 366, 1095, 3282],
-      [23, 31, 53, 83, 135, 217, 351, 567],
-      [2, 6, 19, 53, 126, 262, 491, 849, 1378],
-      [1, 2, 5, 9, 16, 27, 45, 74],
-      [0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132],
-      [3, 5, 8, 12, 17, 23, 30, 38],
-      [5, 8, 20, 68, 260, 1028, 4100],
-      [-6, -4, 0, 2, 6, 8, 12, 14, 18]]
 
-sr1 = [[5, 9, 35, 125, 345, 785, 1559, 2805, 4685],
-      [2, 5, 11, 21, 37, 63, 107],
-      [6, 288, 884736, 173946175488, 2188749418902061056],
-      [1, 2, 8, 48, 384, 3840],
-      [5, 13, 35, 97, 275, 793, 2315, 6817],
-      [12, 44, 144, 432, 1216, 3264, 8448, 21248],
-      [1, 2, 3, 4, 5],
-      [1, 4, 9, 16],
-      [1, 3, 9, 27],
-      [0, 1, 1, 2, 3, 5, 8, 13],
-      [1, 2, 4, 8, 16],
-      [12, 15, 8, 11, 4, 7, 0, 3],
-      [148, 84, 52, 36, 28, 24, 22],
-      [2, 12, 21, 29, 36, 42, 47, 51],
-      [2, 3, 5, 9, 17, 33, 65, 129],
-      [2, 5, 8, 11, 14, 17, 20, 23],
-      [2, 5, 9, 19, 37, 75, 149, 299],
-      [25, 22, 19, 16, 13, 10, 7, 4],
-      [28, 33, 31, 36, 34, 39, 37],
-      [3, 6, 12, 24, 48, 96, 192],
-      [3, 7, 15, 31, 63, 127, 255],
-      [4, 11, 15, 26, 41, 67, 108],
-      [5, 6, 7, 8, 10, 11, 14, 15],
-      [54, 48, 42, 36, 30, 24, 18],
-      [6, 8, 5, 7, 4, 6, 3, 5],
-      [6, 9, 18, 21, 42, 45, 90, 93],
-      [7, 10, 9, 12, 11, 14, 13, 16],
-      [8, 10, 14, 18, 26, 34, 50, 66],
-      [8, 12, 10, 16, 12, 20, 14, 24],
-      [8, 12, 16, 20, 24, 28, 32, 36],
-      [9, 20, 6, 17, 3, 14, 0, 11],
-      [0, 1, 4, 9],
-      [0, 2, 4, 6],
-      [1, 1, 2, 3, 5],
-      [0, 1, 2, 1, 4, 1],
-      [0, 0, 1, 1, 0, 0, 1, 1],
-      [0, 1, 3, 7],
-      [1, 2, 2, 3, 3, 3, 4, 4, 4, 4],
-      [1, 4, 7, 10, 13, 16, 19, 22],
-      [2, 4, 3, 5, 4, 6, 5, 7],
-      [4, 11, 15, 26, 41, 67, 108, 175],
-      [5, 6, 12, 19, 32, 52, 85, 138],
-      [8, 10, 14, 18, 26, 34, 50, 66],
-      [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5],
-      [2, 2, 4, 8, 32, 256],
-      [2, 3, 5, 8, 13, 21, 34],
-      [1, 2, 1, 3, 1, 4, 1, 5],
-      [5, 10, 1, 2, 22, 44, 3, 6, 7, 14],
-      [0, 1, 4, 9, 16],
-      [1, 4, 9, 16, 25],
-      [4, 7, 12, 20, 32],
-      [4, 7, 12, 20, 33],
-      [7, 11, 15, 19, 23],
-      [0, 2, 4, 6, 8, 10],
-      [3, 6, 17, 66, 327],
-      [1, 1, 2, 6, 24, 120, 720, 5040, 40320],
-      [2, 5, 8, 11, 14, 17],
-      [3, 6, 12, 24, 48],
-      [1, 2, 3, 5, 8, 13, 21, 34, 55],
-      [1, 1, 2, 6, 24, 120],
-      [1, 2, 3, 4],
-      [3, 2, 1, 0],
-      [1, 11, 111, 1111],
-      [1, 44, 1, 27, 1, 92],
-      [1, 39, 1, 35, 1, 28],
-      [1, 1, 7, 1],
-      [46, 147, 9, 1, 1, 1]]
-
-kl2 = ['DIV', 'RED(1)', 'RED(2)', 'RED(3)', 'FOC(0,1,1)', 'ML(1,1)', 'LOG',
-      'EXP(1/2)', 'ML(0,1)', 'FOC(0,2,1)', 'DOP(-,/)', 'EXP(-1)', 'ANA(0,3)',
-      'FOC(0,1,1,1)', 'FOC(0,1,1,1,1)', 'DGEE(0,0)', 'DGEE(0,1)', 'RSYM', 'SSYM',
-      'DOP(*,/)', 'DOP(/,-)', 'DOP(+,-)', 'DOP(+,*)', 'DOP(+,/)', 'ML(2,1)', 'FOC(0,1,2)',
-      'FOC(0,2,2)', 'ANA(0,2)', 'ANA(0,4)', 'ANA(0,5)', 'EXP(1/3)',
-      'DGEE(1,0)', 'DGEE(1,1)', 'DGDE(0,0)', 'DGDE(0,1)', 'DGDE(1,0)',
-      'DGDE(1,1)', 'SOE', 'FOC(0,3,1)', 'FOC(0,1,3)', 'FOC(0,3,2)', 'FOC(0,2,3)',
-      'FOC(0,3,3)', 'FOC(0,4,1)', 'FOC(0,4,2)', 'FOC(0,4,3)', 'FOC(0,4,4)',
-      'FOC(0,1,4)', 'FOC(0,2,4)', 'FOC(0,3,4)', 'FOC(0,4,4)', 'FOC(0,5,1)',
-      'FOC(0,5,2)', 'FOC(0,5,3)', 'FOC(0,5,4)', 'FOC(0,1,5)', 'FOC(0,2,5)',
-      'FOC(0,3,5)', 'FOC(0,4,5)', 'FOC(0,5,5)']
-
-
-def read_path(path):
-    file1 = open(path, "r", encoding="utf8")
-    Content = file1.read()
-    CoList = Content.split("\n")
-    file1.close()
-    return CoList
-
-def write_path(path, lines):
-    file1 = open(path, 'w', encoding="utf8")
-    for line in lines:
-        file1.write(str(line))
-        file1.write('\n')
-    file1.close()
-
-def execute_kitbit_gb_False(seqs, kl, mz, path):
-    results, solved = [], 0
-    for seq in seqs:
-        h = KitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
-        x = h.handler()
-        results.append(x)
-        if not x[0][0] or len(x[0][0])<len(seq) or x[0][0] != seq:
-            continue
-        else:
-            solved += 1
-    write_path(path, results)
-    accuracy = solved / len(seqs) * 100
-    print(f"[GB-FALSE] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-    print(f"Results saved to: {path}\n")
-    # print(solved/len(seqs)*100)
+class ParameterTuner:
+    """Tunes KitBit algorithm parameters for optimal performance"""
     
-def execute_kitbit_gb_True(seqs, kl, mz, path):
-    results, solved = [], 0
-    for seq in seqs:
-        h = KitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
-        x = h.handler()
-        results.append(x)
-        if not x[0][0]:
-            continue
-        sol = [1 for pos_sol in x[0] if pos_sol[0]==seq]
-        if 1 in sol:
-            solved += 1
-    write_path(path, results)
-    # print(solved/len(seqs)*100)
-    accuracy = solved / len(seqs) * 100
-    print(f"[GB-TRUE] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-    print(f"Results saved to: {path}\n")
+    def __init__(self, sequences, kl, mz=1, module=10):
+        self.sequences = sequences
+        self.kl = kl
+        self.mz = mz
+        self.module = module
     
-execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
-execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
-execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
-execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
-
-def execute_kitbit_oeis(sols, kl, sols_cad):
-    solved, not_solved, q = [], [], 0
-    for i in range(len(sols)):
-        if i % 1600 == 0:
-            print(f"[OEIS Progress] Processed: {i} | Solved: {len(solved)} | Failed: {len(not_solved)}")
-        seq, solc = sols[i], sols_cad[i]
-        kitasi = kl[i][1:-1].split('&')
-        h = KitBit(seq[:-1], kitasi, 5000000000, kitasi, search_algorithm='branch', n=1, min_zeros=1, epsilon=exp(-18), all_solutions=False)
-        x = h.handler()
-        if not x[0][0] or len(x[0][0])<len(seq) or x[0][0] != seq:
-            h = KitBit(seq[:-1], kitasi, 5000000000, kitasi, search_algorithm='branch', n=1, min_zeros=2, epsilon=exp(-18), all_solutions=False)
-            y = h.handler()
-            if not y[0][0] or y[0][0] != seq or len(y[0][0])<len(seq):
-                not_solved.append(solc)
-            else:
-                q += 1
-                solved.append(y)
-        else:
-            solved.append(x)
-    return solved, not_solved
-
-def execute_series_oeis(sols, kl, depth, N, mz):
-    for i in range(len(sols)):
-        seq = sols[i]
-        h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
-        x = h.handler()
-        print(x)
-        if x[0][0] == seq:
-            print(True)
-        h = KitBit(seq[:-1], kl, 5000000000, depth, search_algorithm='BFS', n=N, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
-        x = h.handler()
-        print(x) 
-
-#------Daata for composite series------
-def interleave2(a, b, take_last_from= "a"):
-    """
-    Interleave three sequences:
-    a1, b1, a2, b2, ...
-    """
-    out =[]
-    n = min(len(a), len(b))
-    
-    for i in range(n):
-        out.append(a[i])
-        out.append(b[i])
+    def tune_depth(self, depths=[2, 3, 4, 5], sample_size=None):
+        """Test different tree depths and return performance metrics
         
-    if take_last_from == 'a' and len(a) > n:
-        out.append(a[n])
-    if take_last_from == 'b' and len(b) > n:
-        out.append(b[n])
+        Args:
+            depths: List of depths to test
+            sample_size: Number of sequences to sample (None = all)
         
-    return out
-
-def interleave3(a, b, c, take_last_from="c"):
-    """
-    Interleave three sequences:
-    a1, b1, c1, a2, b2, c2, ...
-    """
-    out = []
-    n = min(len(a), len(b), len(c))
-    for i in range(n):
-        out.extend([a[i], b[i], c[i]])
-
-    if take_last_from == "a" and len(a) > n:
-        out.append(a[n])
-    elif take_last_from == "b" and len(b) > n:
-        out.append(b[n])
-    elif take_last_from == "c" and len(c) > n:
-        out.append(c[n])
-
-    return out
-
-base_families = {
-    "A000027_naturals":   [1, 2, 3, 4, 5, 6],
-    "A005843_evens":      [2, 4, 6, 8, 10, 12],
-    "A005408_odds":       [1, 3, 5, 7, 9, 11],
-    "A000217_triangular": [1, 3, 6, 10, 15, 21],
-    "A000290_squares":    [1, 4, 9, 16, 25, 36],
-    "A000578_cubes":      [1, 8, 27, 64, 125, 216],
-    "A000040_primes":     [2, 3, 5, 7, 11, 13],
-    "A000045_fib":        [1, 1, 2, 3, 5, 8],
-    "A000142_factorial":  [1, 2, 6, 24, 120, 720],
-    "A001477_posints":    [0, 1, 2, 3, 4, 5]
-}
-
-direct_composite_set = [
-    [1, 1, 2, 3, 3, 6, 4, 10, 5],      # naturals + triangular
-    [1, 1, 2, 4, 3, 9, 4, 16, 5],      # naturals + squares
-    [1, 1, 2, 8, 3, 27, 4, 64, 5],     # naturals + cubes
-    [2, 1, 4, 3, 6, 6, 8, 10, 10],     # evens + triangular
-    [1, 2, 2, 3, 3, 5, 4, 7, 5],       # naturals + primes
-    [1, 1, 2, 1, 3, 2, 4, 3, 5],       # naturals + fib
-    [2, 1, 4, 4, 6, 9, 8, 16, 10],     # evens + squares
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],       # simple merge style
-    [1, 2, 2, 6, 3, 12, 4, 20, 5],     # naturals + n(n+1)
-    [1, 100, 2, 99, 3, 98, 4, 97, 5],  # increasing + decreasing
-]
-
-constructed_composite_set = []
-
-pairs = [
-    ("A000027_naturals", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares"),
-    ("A000027_naturals", "A000578_cubes"),
-    ("A000027_naturals", "A000040_primes"),
-    ("A000027_naturals", "A000045_fib"),
-    ("A005843_evens", "A000217_triangular"),
-    ("A005843_evens", "A000290_squares"),
-    ("A005843_evens", "A000040_primes"),
-    ("A005408_odds", "A000217_triangular"),
-    ("A005408_odds", "A000290_squares"),
-    ("A005408_odds", "A000040_primes"),
-    ("A000045_fib", "A000217_triangular"),
-    ("A000045_fib", "A000290_squares"),
-    ("A000040_primes", "A000290_squares"),
-    ("A000040_primes", "A000217_triangular"),
-]
-
-# make 15 pairwise 
-for a_name, b_name in pairs:
-    a = base_families[a_name]
-    b = base_families[b_name]
-    seq = interleave2(a, b, take_last_from="a")[:9]
-    constructed_composite_set.append({
-        "sequence": seq,
-        "source": f"{a_name} + {b_name}",
-        "type": "pair_interleave"
-    })
-
-# 15 triple 
-triples = [
-    ("A000027_naturals", "A005843_evens", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares", "A000040_primes"),
-    ("A000027_naturals", "A000045_fib", "A000217_triangular"),
-    ("A005408_odds", "A000290_squares", "A000040_primes"),
-    ("A005843_evens", "A000217_triangular", "A000040_primes"),
-    ("A000027_naturals", "A000578_cubes", "A000040_primes"),
-    ("A000045_fib", "A000290_squares", "A000217_triangular"),
-    ("A005408_odds", "A000217_triangular", "A000045_fib"),
-    ("A005843_evens", "A000290_squares", "A000045_fib"),
-    ("A000027_naturals", "A000040_primes", "A000142_factorial"),
-    ("A005408_odds", "A000040_primes", "A000217_triangular"),
-    ("A000027_naturals", "A000290_squares", "A000217_triangular"),
-    ("A005843_evens", "A000040_primes", "A000290_squares"),
-    ("A000045_fib", "A000040_primes", "A000217_triangular"),
-    ("A000027_naturals", "A005408_odds", "A000040_primes"),
-]
-
-for a_name, b_name, c_name in triples:
-    a = base_families[a_name]
-    b = base_families[b_name]
-    c = base_families[c_name]
-    seq = interleave3(a, b, c, take_last_from="a")[:9]
-    constructed_composite_set.append({
-        "sequence": seq,
-        "source": f"{a_name} + {b_name} + {c_name}",
-        "type": "triple_interleave"
-    })
-
-composite_dataset = []
-composite_dataset.extend(direct_composite_set)
-composite_dataset.extend(constructed_composite_set)
-
-print(f"Before dedup: {len(composite_dataset)}")
-
-seen = set()
-unique_composite_dataset = []
-
-for item in composite_dataset:
-    if isinstance(item, dict):
-        seq_tuple = tuple(item["sequence"])
-    else:
-        seq_tuple = tuple(item)
-
-    if seq_tuple not in seen:
-        seen.add(seq_tuple)
-        unique_composite_dataset.append(item)
-
-composite_dataset = unique_composite_dataset
-
-print(f"After dedup: {len(composite_dataset)}")
-
-extra_composites = [
-    [1, 2, 2, 6, 3, 24, 4, 120, 5],     # naturals + factorial
-    [2, 1, 3, 2, 5, 6, 7, 24, 11],      # primes + factorial
-    [1, 2, 4, 3, 9, 5, 16, 7, 25],      # squares + primes
-    [1, 1, 3, 2, 6, 6, 10, 24, 15],     # triangular + factorial
-    [2, 1, 3, 1, 5, 2, 7, 3, 11],       # primes + fib
-    [1, 1, 4, 2, 9, 3, 16, 5, 25],      # squares + fib
-    [2, 1, 4, 2, 6, 6, 8, 24, 10],      # evens + factorial
-]
-
-for seq in extra_composites:
-    seq_tuple = tuple(seq)
-    if seq_tuple not in seen:
-        seen.add(seq_tuple)
-        composite_dataset.append(seq)
-
-composite_test_set = [
-    item["sequence"] if isinstance(item, dict) else item
-    for item in composite_dataset
-]
-print(composite_test_set)
-
-def run_composite_baseline(seqs, kl, mz=1, depth=3):
-    solved = 0
-    results = []
-
-    for seq in seqs:
-        h = KitBit(
-            seq[:-1], kl, 500000, depth,
-            search_algorithm='BFS',
-            n=1, min_zeros=mz,
-            epsilon=exp(-18),
-            all_solutions=False
-        )
-        x = h.handler()
-
-        pred_seq = x[0][0] if x and x[0] else False
-        predicted_next = pred_seq[len(seq)-1] if pred_seq and len(pred_seq) >= len(seq) else None
-
-        full_match = bool(pred_seq) and len(pred_seq) >= len(seq) and pred_seq[:len(seq)] == seq
-        next_match = predicted_next == seq[-1]
-
-        ok = next_match   # use this for solving accuracy
-
-        if ok:
-            solved += 1
-
-        results.append({
-            "input": seq[:-1], 
-            "expected": seq[-1],
-            "predicted": predicted_next,
-            "solved": ok,
-            "full_match": full_match,
-            "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
-            "time": x[1] if x and len(x) > 1 else None
-        })
-
-    accuracy = solved / len(seqs) * 100
-    print(f"[Composite Baseline] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-
-    print("\nFailed sequences:")
-    for r in results:
-        if not r["solved"]:
-            print(
-                f"input={r['input']} | expected={r['expected']} | "
-                f"predicted={r['predicted']}"
-            )
-
-    return results
-
-def solve_subsequence_with_kitbit(subseq, kl, mz=1, depth=3):
-    h = KitBit(
-        subseq[:-1], kl, 500000, depth,
-        search_algorithm='BFS',
-        n=1, min_zeros=mz,
-        epsilon=exp(-18),
-        all_solutions=False
-    )
-
-    x = h.handler()
-    pred_seq = x[0][0] if x and x[0] else False
-    predicted_next = pred_seq[len(subseq) - 1] if pred_seq and len(pred_seq) >= len(subseq) else None
-
-    return {
-        "solved": predicted_next == subseq[-1],
-        "predicted_next": predicted_next,
-        "pred_seq": pred_seq,
-        "actions": x[0][2] if x and x[0] and len(x[0]) > 2 else [],
-        "time": x[1] if x and len(x) > 1 else None
-    }
-
-
-def split_odd_even(seq):
-    return [seq[::2], seq[1::2]]
-
-
-def split_stride3(seq):
-    return [seq[0::3], seq[1::3], seq[2::3]]
-
-
-def evaluate_split(parts, expected, kl, mz=1, depth=3):
-    """
-    Evaluate whether each decomposed subsequence can correctly predict
-    its own next term when extended with the expected answer.
+        Returns:
+            Dictionary: {depth: {accuracy, avg_time, solved}}
+        """
+        results = {}
+        test_seqs = self.sequences[:sample_size] if sample_size else self.sequences
+        
+        for depth in depths:
+            solved = 0
+            times = []
+            
+            for seq in test_seqs:
+                if len(seq) < 2:
+                    continue
+                
+                kb = KitBit(seq, self.kl, self.mz, depth, module=self.module)
+                start = default_timer()
+                result = kb.handler()
+                end = default_timer()
+                times.append(end - start)
+                
+                if result[0] is not False and result[0] is not None:
+                    solved += 1
+            
+            accuracy = (solved / len(test_seqs) * 100) if test_seqs else 0
+            avg_time = sum(times) / len(times) if times else 0
+            
+            results[depth] = {
+                'accuracy': accuracy,
+                'avg_time': avg_time,
+                'solved': solved
+            }
+        
+        return results
     
-    it must feld ture for all subsequences to be marked as "solved"
-    """
-    if any(len(part) < 3 for part in parts):
-        return None
+    def tune_epsilon(self, epsilons=[exp(-18), exp(-15), exp(-12)], depth=3, sample_size=None):
+        """Test different epsilon values for convergence threshold
+        
+        Args:
+            epsilons: List of epsilon values to test
+            depth: Tree depth to use
+            sample_size: Number of sequences to sample
+        
+        Returns:
+            Dictionary: {epsilon: {accuracy, solved}}
+        """
+        results = {}
+        test_seqs = self.sequences[:sample_size] if sample_size else self.sequences
+        
+        for eps in epsilons:
+            solved = 0
+            
+            for seq in test_seqs:
+                if len(seq) < 2:
+                    continue
+                
+                kb = KitBit(seq, self.kl, self.mz, depth, epsilon=eps, module=self.module)
+                result = kb.handler()
+                
+                if result[0] is not False and result[0] is not None:
+                    solved += 1
+            
+            accuracy = (solved / len(test_seqs) * 100) if test_seqs else 0
+            results[eps] = {
+                'accuracy': accuracy,
+                'solved': solved
+            }
+        
+        return results
 
-    sub_results = []
+
+class KitBitWithEarlyStopping(KitBit):
+    """Extended KitBit with early stopping for improved efficiency"""
     
-    #solving all subsequneces
-    for part in parts:
-        result = solve_subsequence_with_kitbit(part + [expected], kl, mz=mz, depth=depth)
-        sub_results.append(result)
+    def __init__(self, structure, kl, mni, depth, search_algorithm='BFS', n=2, 
+                 min_zeros=1, epsilon=exp(-18), all_solutions=False,
+                 max_iterations=None, early_stop_threshold=0.8):
+        super().__init__(structure, kl, mni, depth, search_algorithm, n, min_zeros, epsilon, all_solutions)
+        self.max_iterations = max_iterations
+        self.early_stop_threshold = early_stop_threshold
+        self.iteration_count = 0
+    
+    def numeric_solver_early_stop(self, seq, kl, depth, module):
+        """Single solution solver with early stopping"""
+        edk0 = KBEDK(seq[:], module, None)
+        edk0 = edk0.basic()
+        if edk0.is_goal('BASIC', self.epsilon, self.min_zeros, 0):
+            edk0.eos[-1] += [0]*self.n
+            return edk0.rev_basic(self.n, 1, len(edk0.eos)-1), 0, ['BASIC']
+        if len(seq) == 2:
+            edk0.eos[-1] += edk0.eos[-1]*self.n
+            return edk0.rev_basic(self.n, 1, len(edk0.eos)-1), 0, ['BASIC']
+        
+        st0 = SeqState(None, [edk0], [], [])
+        alg = SeqSearchAlgorithm(st0, kl, self.mni, depth, self.n, self.min_zeros, self.epsilon)
+        alg.max_iterations = self.max_iterations
+        alg.early_stop_threshold = self.early_stop_threshold
+        
+        if self.search_alg == 'BFS':
+            lst = alg.bfs_early_stop()
+        elif self.search_alg == 'DFS':
+            lst = alg.dfs([st0])
+        else:
+            lst = alg.branch()
+        
+        if lst is None or lst is False or len(lst[0]) == 1:
+            return False, 0, lst
+        return lst[0][0], lst[1], lst[0][1]
+    
+    def numeric_solver_all_sols_early_stop(self, seq, kl, depth, module):
+        """All solutions solver with early stopping"""
+        edk0 = KBEDK(seq[:], module, None)
+        edk0 = edk0.basic()
+        if edk0.is_goal('BASIC', self.epsilon, self.min_zeros, 0):
+            edk0.eos[-1] += [0]*self.n
+            return edk0.rev_basic(self.n, 1, len(edk0.eos)-1), 0, ['BASIC']
+        
+        st0 = SeqState(None, [edk0], [], [])
+        alg = SeqSearchAlgorithm(st0, kl, self.mni, depth, self.n, self.min_zeros, self.epsilon)
+        alg.max_iterations = self.max_iterations
+        alg.early_stop_threshold = self.early_stop_threshold
+        
+        if self.search_alg == 'BFS':
+            lst = alg.bfs_early_stop()
+        elif self.search_alg == 'DFS':
+            lst = alg.dfs([st0])
+        else:
+            lst = alg.branch()
+        
+        if lst is None or lst is False or len(lst[0]) == 1:
+            return False, 0, lst
+        return lst[0][0], lst[1], lst[0][1]
 
-    return {
-        "parts": parts,
-        "sub_results": sub_results,
-        "solved_count": sum(r["solved"] for r in sub_results),
-        "all_solved": all(r["solved"] for r in sub_results),
-    }
 
-
-def reconstruct_next_from_split(parts, sub_results, mode):
-    """
-    Reconstruct which subsequence should generate the next element
-    in the original interleaved sequence.
-    """
-    preds = [r["predicted_next"] for r in sub_results]
-    if any(p is None for p in preds):
+class SeqSearchAlgorithm_EarlyStop(SeqSearchAlgorithm):
+    """Extension of SeqSearchAlgorithm with early stopping support"""
+    
+    def __init__(self, initial_state, kl, mni, depth, n=2, min_zeros=1, epsilon=exp(-18)):
+        super().__init__(initial_state, kl, mni, depth, n, min_zeros, epsilon)
+        self.max_iterations = None
+        self.early_stop_threshold = 0.8
+        self.iteration_count = 0
+    
+    def bfs_early_stop(self):
+        """BFS with early stopping capability"""
+        if self.initial_state is None:
+            return None
+        
+        visited_states = set()
+        queue = [self.initial_state]
+        iteration = 0
+        
+        while queue and (self.max_iterations is None or iteration < self.max_iterations):
+            iteration += 1
+            new_queue = []
+            
+            for state in queue:
+                state_id = id(state)
+                if state_id in visited_states:
+                    continue
+                visited_states.add(state_id)
+                
+                # Check if goal is reached
+                if state.is_goal():
+                    return state.get_solution()
+                
+                # Generate successors
+                successors = state.expand(self.kl, self.mni, self.depth - 1, self.n, self.min_zeros, self.epsilon, self.module)
+                
+                if successors:
+                    for successor in successors:
+                        if id(successor) not in visited_states:
+                            new_queue.append(successor)
+            
+            queue = new_queue
+        
         return None
-
-    if mode == "odd_even":
-        # If first part is longer, next element belongs to second part, else first part
-        return preds[1] if len(parts[0]) > len(parts[1]) else preds[0]
-
-    if mode == "stride3":
-        lengths = [len(p) for p in parts]
-        min_len = min(lengths)
-
-        # Find which stream is next in the interleaving order
-        for idx, part in enumerate(parts):
-            if len(part) == min_len:
-                return preds[idx]
-
-    return None
-
-
-def try_best_composite_split(seq, expected, kl, mz=1, depth=3):
-    """
-    Try only interpretable composite decomposition strategies.
-    """
-    strategies = [
-        ("odd_even", split_odd_even),
-        ("stride3", split_stride3),
-    ]
-
-    candidates = []
-
-    for mode_name, splitter in strategies:
-        parts = splitter(seq)
-        result = evaluate_split(parts, expected, kl, mz=mz, depth=depth)
-
-        if result is None:
-            continue
-
-        reconstructed_pred = reconstruct_next_from_split(parts, result["sub_results"], mode_name)
-        result["mode"] = mode_name
-        result["reconstructed_pred"] = reconstructed_pred
-        result["matches_expected"] = reconstructed_pred == expected
-
-        candidates.append(result)
-
-    if not candidates:
-        return None
-
-    candidates.sort(
-        key=lambda x: (
-            x["matches_expected"],
-            x["all_solved"],
-            x["solved_count"]
-        ),
-        reverse=True
-    )
-
-    return candidates[0]
-
-
-def run_composite_with_decomposition(seqs, kl, mz=1, depth=3):
-    solved = 0
-    results = []
-
-    for seq in seqs:
-        input_seq = seq[:-1]
-        expected = seq[-1]
-
-        # Step 1: baseline
-        baseline = solve_subsequence_with_kitbit(input_seq + [expected], kl, mz=mz, depth=depth)
-        baseline_pred = baseline["predicted_next"]
-        baseline_ok = baseline_pred == expected
-
-        final_ok = baseline_ok
-        final_pred = baseline_pred
-        mode_used = "baseline"
-        detail = None
-
-        # Step 2: decomposition only if baseline fails
-        if not baseline_ok:
-            best_split = try_best_composite_split(input_seq, expected, kl, mz=mz, depth=depth)
-
-            if best_split and best_split["matches_expected"]:
-                final_ok = True
-                final_pred = best_split["reconstructed_pred"]
-                mode_used = f"decomposition-{best_split['mode']}"
-                detail = best_split
-
-        if final_ok:
-            solved += 1
-
-        results.append({
-            "input": input_seq,
-            "expected": expected,
-            "predicted": final_pred,
-            "solved": final_ok,
-            "mode": mode_used,
-            "detail": detail
-        })
-
-    accuracy = solved / len(seqs) * 100
-    print(f"[Composite Improved] Total: {len(seqs)} | Solved: {solved} | Accuracy: {accuracy:.2f}%")
-
-    print("\nStill failed sequences:")
-    for r in results:
-        if not r["solved"]:
-            print(
-                f"input={r['input']} | expected={r['expected']} | predicted={r['predicted']}"
-            )
-
-    return results
-
-
-sols, sols_cad = [], []
-CoList1 = read_path('data/OEIS_SERIES_SOLVED.txt')
-CoList2 = read_path('data/OEIS_KITAS.txt')
-print(f"[OEIS Dataset] Total: {len(CoList1)} | Unique: {len(set(CoList1))}\n")
-for j in range(len(CoList1)):
-    seq1 = list(map(lambda u: int(u), CoList1[j][9:-2].split(',')))
-    pos_sol = seq1[:]
-    if len(pos_sol) < 4 or len(seq1[:-1])<2:
-        continue
-    sols.append(pos_sol)
-    sols_cad.append(CoList1[j][:-1])
-
-sol_def, not_sol = execute_kitbit_oeis(sols, CoList2, sols_cad)
-print(f"[OEIS Dataset] Solved: {len(sol_def)} | UnSolved: { len(not_sol)} \n")
-write_path('results/OEIS_results.txt', sol_def)
-
-
-print("---------------------------- BASELINE --------------")
-
-baseline_results = run_composite_baseline(composite_test_set, kl2)
-
-print("----------------------------IMPROVED------------------")
-
-improved_results = run_composite_with_decomposition(composite_test_set, kl=kl2)
