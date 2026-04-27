@@ -78,6 +78,38 @@ class KitBit:
             sols.append((seq[:]+sol[ln:ln+self.n], n_iter, acts))
         return sols if sols else (False, 0, kl)
 
+class DynamicKitBit:
+    """
+    this class wraps the kitbit with dynamic early stopping. 
+    """
+    
+    def __init__(self, structure, kl, mni = 5000000000, depth=3, search_algorithm='BFS', n=2, min_zeros=1, epsilon=exp(-18), all_solutions=False):
+        self.structure = structure
+        self.kl = kl
+        self.mni = mni
+        self.depth = depth
+        self.search_algorithm = search_algorithm
+        self.n = n
+        self.min_zeros = min_zeros
+        self.epsilon = epsilon
+        self.all_solutions = all_solutions
+        
+    def solve(self):
+        for budget in [50000, 500000, 5000000000]:
+            h = KitBit(
+                self.structure, self.kl, budget, self.depth,
+                search_algorithm=self.search_algorithm,
+                n=self.n, min_zeros=self.min_zeros,
+                epsilon=self.epsilon, all_solutions=self.all_solutions
+            )
+            result = h.handler()
+            
+            if result and result[0] and result[0] != (False, 0, self.kl):
+                self.solve_cost= budget
+                return result
+        self.solve_cost = 5000000000
+        return [(False, 0, self.kl), 0]
+      
 class SeqSearchAlgorithm:
     def __init__(self, init_state, kl, mni, depth, n, min_zeros, epsilon):
         self.init_state = init_state
@@ -1015,3 +1047,20 @@ def write_path(path, lines):
         file1.write(str(line))
         file1.write('\n')
     file1.close()
+    
+def run_with_tracking(seqs, kl, mode_name):
+    costs = []
+    for seq in seqs:
+        h = DynamicKitBit(seq[:-1], kl)
+        h.solve()
+        costs.append(h.solve_cost)
+    
+    cheap = sum(1 for c in costs if c == 50_000)
+    medium = sum(1 for c in costs if c == 500_000)
+    full = sum(1 for c in costs if c == 5_000_000_000)
+    
+    print(f"\n[{mode_name}] Budget distribution:")
+    print(f"  50K:  {cheap} seqs ({cheap/len(seqs)*100:.1f}%)")
+    print(f"  500K: {medium} seqs ({medium/len(seqs)*100:.1f}%)")
+    print(f"  5B:   {full} seqs ({full/len(seqs)*100:.1f}%)")
+    print(f"  Total nodes saved vs. always-5B: ~{sum(costs) / len(seqs) / 1e6:.2f}M avg per seq\n")

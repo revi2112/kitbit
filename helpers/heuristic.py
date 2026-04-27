@@ -1,7 +1,7 @@
 from math import exp
 from collections import defaultdict
 
-from helpers.generic import KBEDK, KitBit, SeqSearchAlgorithm, SeqState
+from helpers.generic import KBEDK, DynamicKitBit, KitBit, SeqSearchAlgorithm, SeqState
 
 
 def learn_kita_success_rates(seqs, kl, mz=1, depth=3, epsilon=exp(-18), n=1):

@@ -1,7 +1,7 @@
 from math import exp
 from data.data import sr0, sr1, kl2, composite_test_set
 from helpers.composite_helper import is_close, is_reasonable, predict_next_for_subseq, try_best_composite_split
-from helpers.generic import KitBit, write_path, read_path
+from helpers.generic import DynamicKitBit, KitBit, run_with_tracking, write_path, read_path
 from helpers.heuristic import run_heuristic_search
 from data.prime_data import prime_test_set
 from helpers.prime_helper import deep_prime_fallback, predict_next_for_subseq as predict_prime_next, is_close as is_prime_close
@@ -9,8 +9,8 @@ from helpers.prime_helper import deep_prime_fallback, predict_next_for_subseq as
 def execute_kitbit_gb_False(seqs, kl, mz, path):
     results, solved = [], 0
     for seq in seqs:
-        h = KitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
-        x = h.handler()
+        h = DynamicKitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=False)
+        x = h.solve()
         results.append(x)
         if not x[0][0] or len(x[0][0])<len(seq) or x[0][0] != seq:
             continue
@@ -25,8 +25,8 @@ def execute_kitbit_gb_False(seqs, kl, mz, path):
 def execute_kitbit_gb_True(seqs, kl, mz, path):
     results, solved = [], 0
     for seq in seqs:
-        h = KitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
-        x = h.handler()
+        h = DynamicKitBit(seq[:-1], kl, 5000000000, 3, search_algorithm='BFS', n=1, min_zeros=mz, epsilon=exp(-18), all_solutions=True)
+        x = h.solve()
         results.append(x)
         if not x[0][0]:
             continue
@@ -293,11 +293,13 @@ def run_prime_improved(seqs, kl, mz=1, depth=2, fallback_limit=30):
 
 if __name__ == '__main__':
     
-      
     execute_kitbit_gb_False(sr0, kl2, 1, 'results/IQ_S1Z.txt')
     execute_kitbit_gb_False(sr1, kl2, 1, 'results/LI_S1Z.txt')
     execute_kitbit_gb_True(sr0, kl2, 1, 'results/IQ_N1Z.txt')
     execute_kitbit_gb_True(sr1, kl2, 1, 'results/LI_N1Z.txt')
+
+    run_with_tracking(sr0, kl2, "IQ series (sr0)")
+    run_with_tracking(sr1, kl2, "Literature (sr1)")
 
     
     sols, sols_cad = [], []
@@ -340,3 +342,4 @@ if __name__ == '__main__':
 
     print("\n---------------- PRIME IMPROVED ----------------")
     run_prime_improved(prime_test_set, kl2)
+    
